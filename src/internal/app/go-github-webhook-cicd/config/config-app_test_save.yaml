@@ -1,0 +1,19 @@
+hosts:
+    api:
+        host: 127.0.0.1
+        port: "7575"
+github:
+    git_cmd: /usr/bin/git
+    projects:
+        - api_route: go-github-webhook-cicd-test-deploy
+          repository: git@github.com:nobuenhombre/go-github-webhook-cicd-test-deploy.git
+          branch: refs/heads/main
+          token: tu38ir**_demo_**3if23ff
+          project_dir: /opt/test-deploy/
+          bash_scripts:
+            on_pull:
+                before: /opt/go-github-webhook-cicd/configs/develop.local.ivan/github/projects/test-deploy/bash-scripts/pull/after-pull.sh
+                after: /opt/go-github-webhook-cicd/configs/develop.local.ivan/github/projects/test-deploy/bash-scripts/pull/before-pull.sh
+sentry:
+    dsn: https://ABC@SUB.ingest.sentry.io/XXX
+    environment: develop
