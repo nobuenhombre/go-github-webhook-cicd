@@ -13,7 +13,7 @@ type GitHubProjectConfig struct {
 	APIRoute    string            `yaml:"api_route,omitempty"`
 	Repository  string            `yaml:"repository,omitempty"`
 	Branch      string            `yaml:"branch,omitempty"`
-	Token       string            `yaml:"token,omitempty"`
+	Secret      string            `yaml:"secret,omitempty"`
 	Dir         string            `yaml:"project_dir,omitempty"`
 	BashScripts BashScriptsConfig `yaml:"bash_scripts,omitempty"`
 }
