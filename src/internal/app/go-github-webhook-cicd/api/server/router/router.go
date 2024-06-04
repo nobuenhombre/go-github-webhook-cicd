@@ -11,6 +11,7 @@ import (
 
 type HTTPRouter struct {
 	Router      *gin.Engine
+	Domain      domainapp.IDomainApp
 	Handlers    *handlers.HttpHandler
 	Middlewares *middlewares.HttpMiddleware
 }
@@ -19,6 +20,7 @@ func NewHTTPRouter(logFile *os.File, dom domainapp.IDomainApp) (router *HTTPRout
 	router = new(HTTPRouter)
 	router.WriteToLog(logFile)
 
+	router.Domain = dom
 	router.Handlers = handlers.NewHttpHandler(dom)
 	router.Middlewares = middlewares.NewHttpMiddleware(dom)
 	router.Router = gin.Default()
@@ -37,4 +39,16 @@ func (r *HTTPRouter) WriteToLog(logFile *os.File) {
 
 func (r *HTTPRouter) AddRoutes() {
 	r.Router.GET("/", r.Handlers.DefaultHandler)
+
+	githubService := r.Domain.GetGithubService()
+
+	projects := githubService.GetProjects()
+	for _, project := range projects {
+		groupProject := r.Router.Group(project.APIRoute)
+		{
+			groupProject.Use(r.Middlewares.GithubMiddleware(&project))
+			groupProject.POST("/", r.Handlers.GithubWebHookHandler)
+		}
+	}
+
 }
