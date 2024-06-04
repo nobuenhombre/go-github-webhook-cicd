@@ -8,7 +8,7 @@ github:
     - api_route: go-github-webhook-cicd-test-deploy
       repository: git@github.com:nobuenhombre/go-github-webhook-cicd-test-deploy.git
       branch: refs/heads/main
-      token: tu38ir**_demo_**3if23ff
+      secret: tu38ir**_demo_**3if23ff
       project_dir: /opt/test-deploy/
       bash_scripts:
         on_pull:
