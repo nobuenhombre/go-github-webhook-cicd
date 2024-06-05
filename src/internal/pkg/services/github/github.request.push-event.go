@@ -123,10 +123,11 @@ func (pr *PushEventRequest) Validate(secret string, branch string) error {
 		return ge.Pin(ge.New("Signature is invalid"))
 	}
 
-	if pr.Data.Ref != branch {
+	ref := fmt.Sprintf("refs/heads/%v", branch)
+	if pr.Data.Ref != ref {
 		return ge.Pin(&ge.MismatchError{
-			ComparedItems: "branch",
-			Expected:      branch,
+			ComparedItems: "Ref",
+			Expected:      ref,
 			Actual:        pr.Data.Ref,
 		})
 	}
