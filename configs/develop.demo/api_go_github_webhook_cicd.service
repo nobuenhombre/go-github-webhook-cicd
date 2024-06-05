@@ -1,0 +1,10 @@
+[Unit]
+Description=api_go_github_webhook_cicd
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/go-github-webhook-cicd/configs/
+ExecStart=/usr/local/bin/go-github-webhook-cicd -config=/opt/go-github-webhook-cicd/configs/develop.demo/config.api.yaml -log=/var/log/go-github-webhook-cicd/api.log
+
+[Install]
+WantedBy=multy-user.target

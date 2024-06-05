@@ -1,0 +1,30 @@
+hosts:
+  api:
+    host: 127.0.0.1
+    port: "7575"
+github:
+  git_cmd: /usr/bin/git
+  projects:
+    - api_route: repo-name-a
+      repository: git-user-name/repo-name-a
+      branch: main
+      secret: your-secret-a
+      project_dir: /project/work/dir/a
+      bash_scripts:
+        on_pull:
+          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/after-pull.sh
+          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/before-pull.sh
+
+    - api_route: repo-name-b
+      repository: git-user-name/repo-name-b
+      branch: main
+      secret: your-secret-b
+      project_dir: /project/work/dir/b
+      bash_scripts:
+        on_pull:
+          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/after-pull.sh
+          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/before-pull.sh
+
+sentry:
+  dsn: https://ABC@SUB.ingest.sentry.io/XXX
+  environment: develop.demo
