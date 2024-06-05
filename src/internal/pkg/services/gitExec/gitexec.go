@@ -18,10 +18,10 @@ func NewGitExec(config *configgithub.GitHubConfig) Service {
 	}
 }
 
-func (conn *Conn) exec(command string, args []string) error {
+func (conn *Conn) exec(ident string, command string, args []string) error {
 	out, err := osexec.OSRun(command, args)
-	log.Printf("Exec %v \n", command)
-	log.Printf("Output %v\n", out)
+	log.Printf("[%v] Exec %v args %v \n", ident, command, args)
+	log.Printf("[%v] \tOutput: %v\n", ident, out)
 	if err != nil {
 		return ge.Pin(err)
 	}
@@ -36,32 +36,32 @@ func (conn *Conn) GetExecutor() queue.ExecFunc {
 			return ge.Pin(ge.New("data is not *configgithub.GitHubProjectConfig type"))
 		}
 
-		err := conn.exec(project.BashScripts.OnPull.Before, []string{})
+		err := conn.exec(project.Repository, project.BashScripts.OnPull.Before, []string{})
 		if err != nil {
 			return ge.Pin(err)
 		}
 
-		err = conn.exec(conn.config.GitCmd, []string{"-C", project.Dir, "stash"})
+		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "stash"})
 		if err != nil {
 			return ge.Pin(err)
 		}
 
-		err = conn.exec(conn.config.GitCmd, []string{"-C", project.Dir, "fetch"})
+		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "fetch"})
 		if err != nil {
 			return ge.Pin(err)
 		}
 
-		err = conn.exec(conn.config.GitCmd, []string{"-C", project.Dir, "checkout", project.Branch})
+		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "checkout", project.Branch})
 		if err != nil {
 			return ge.Pin(err)
 		}
 
-		err = conn.exec(conn.config.GitCmd, []string{"-C", project.Dir, "pull"})
+		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "pull"})
 		if err != nil {
 			return ge.Pin(err)
 		}
 
-		err = conn.exec(project.BashScripts.OnPull.After, []string{})
+		err = conn.exec(project.Repository, project.BashScripts.OnPull.After, []string{})
 		if err != nil {
 			return ge.Pin(err)
 		}
