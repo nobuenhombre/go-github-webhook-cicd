@@ -1,1 +1,3 @@
 .idea
+/service/deployments/go-github-webhook-cicd/linux/.env
+/configs/develop.local.ivan/
