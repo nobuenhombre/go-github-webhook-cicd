@@ -30,7 +30,7 @@ func (q *Conn) Push(item interface{}) {
 }
 
 func (q *Conn) Run() {
-	runner := func() {
+	go func() {
 		for {
 			select {
 			case item := <-q.items:
@@ -46,9 +46,7 @@ func (q *Conn) Run() {
 				// no one option worked
 			}
 		}
-	}
-
-	go runner()
+	}()
 }
 
 func (q *Conn) Stop() {
