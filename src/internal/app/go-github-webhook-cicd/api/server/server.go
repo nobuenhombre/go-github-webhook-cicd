@@ -12,6 +12,7 @@ import (
 )
 
 type HTTPServer struct {
+	Domain domainapp.IDomainApp
 	Router *router.HTTPRouter
 	Server *http.Server
 }
@@ -20,6 +21,7 @@ type HTTPServer struct {
 func NewHTTPServer(config *configserver.HTTPServerConfig, logFile *os.File, dom domainapp.IDomainApp) (srv *HTTPServer, err error) {
 	srv = new(HTTPServer)
 
+	srv.Domain = dom
 	srv.Router = router.NewHTTPRouter(logFile, dom)
 
 	srv.Server = &http.Server{

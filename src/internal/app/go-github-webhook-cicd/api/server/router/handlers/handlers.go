@@ -22,15 +22,16 @@ func NewHttpHandler(dom domainapp.IDomainApp) (handler *HttpHandler) {
 func (h *HttpHandler) DefaultHandler(c *gin.Context) {
 	c.String(
 		http.StatusOK,
-		"Welcome API Server",
+		"Welcome Github webhook API Server",
 	)
 }
 
 func (h *HttpHandler) GithubWebHookHandler(c *gin.Context) {
 	project := c.MustGet(middlewares.Project).(*configgithub.GitHubProjectConfig)
 
+	h.Domain.GetQueueService().Push(project)
+
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "OK",
-		"project": project,
+		"status": "OK",
 	})
 }

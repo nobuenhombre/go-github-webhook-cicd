@@ -40,5 +40,6 @@ func (srv *HTTPServer) terminateServer() {
 
 func (srv *HTTPServer) gracefulShutDown() {
 	srv.waitOSInterruptSignal()
+	srv.Domain.GetQueueService().Stop()
 	srv.terminateServer()
 }

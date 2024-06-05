@@ -79,6 +79,10 @@ func main() {
 			log.Fatalf(" -[exit]- server.NewHTTPServer() error [%v]\n", err)
 		}
 
+		// Start Queue
+		dom.GetQueueService().Run()
+
+		// Start API
 		srv.Run() // wait terminal signal
 	}()
 }
