@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nobuenhombre/suikat/pkg/ge"
+	configgithub "go-github-webhook-cicd/src/internal/pkg/services/github/config"
 	"io"
 	"net/http"
 	"strings"
@@ -85,6 +86,8 @@ func NewPushEventRequest(r *http.Request) (*PushEventRequest, error) {
 
 	request.Body = body
 
+	request.Data = new(PushEventData)
+
 	err = json.Unmarshal(request.Body, request.Data)
 	if err != nil {
 		return nil, ge.Pin(err)
@@ -95,7 +98,7 @@ func NewPushEventRequest(r *http.Request) (*PushEventRequest, error) {
 
 const SignatureTypeSHA1 = "sha1"
 
-func (pr *PushEventRequest) Validate(secret string, branch string) error {
+func (pr *PushEventRequest) Validate(project *configgithub.GitHubProjectConfig) error {
 	err := pr.Headers.Validate()
 	if err != nil {
 		return ge.Pin(err)
@@ -114,7 +117,7 @@ func (pr *PushEventRequest) Validate(secret string, branch string) error {
 		})
 	}
 
-	hm := hmac.New(sha1.New, []byte(secret))
+	hm := hmac.New(sha1.New, []byte(project.Secret))
 	hm.Write(pr.Body)
 
 	hash := fmt.Sprintf("%x", hm.Sum(nil))
@@ -123,7 +126,15 @@ func (pr *PushEventRequest) Validate(secret string, branch string) error {
 		return ge.Pin(ge.New("Signature is invalid"))
 	}
 
-	ref := fmt.Sprintf("refs/heads/%v", branch)
+	if pr.Data.Repository.FullName != project.Repository {
+		return ge.Pin(&ge.MismatchError{
+			ComparedItems: "Repository",
+			Expected:      project.Repository,
+			Actual:        pr.Data.Repository.FullName,
+		})
+	}
+
+	ref := fmt.Sprintf("refs/heads/%v", project.Branch)
 	if pr.Data.Ref != ref {
 		return ge.Pin(&ge.MismatchError{
 			ComparedItems: "Ref",

@@ -30,7 +30,7 @@ func (c *Conn) ValidatePushEventRequest(r *http.Request, project *configgithub.G
 		return ge.Pin(err)
 	}
 
-	err = peRequest.Validate(project.Secret, project.Branch)
+	err = peRequest.Validate(project)
 	if err != nil {
 		return ge.Pin(err)
 	}
