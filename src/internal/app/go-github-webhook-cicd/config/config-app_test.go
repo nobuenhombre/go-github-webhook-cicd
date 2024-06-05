@@ -35,7 +35,7 @@ func TestConfigLoad(t *testing.T) {
 					{
 						APIRoute:   "go-github-webhook-cicd-test-deploy",
 						Repository: "git@github.com:nobuenhombre/go-github-webhook-cicd-test-deploy.git",
-						Branch:     "refs/heads/main",
+						Branch:     "main",
 						Secret:     "tu38ir**_demo_**3if23ff",
 						Dir:        "/opt/test-deploy/",
 						BashScripts: configgithub.BashScriptsConfig{
@@ -79,7 +79,7 @@ func TestConfigSave(t *testing.T) {
 			"    projects:\n" +
 			"        - api_route: go-github-webhook-cicd-test-deploy\n" +
 			"          repository: git@github.com:nobuenhombre/go-github-webhook-cicd-test-deploy.git\n" +
-			"          branch: refs/heads/main\n" +
+			"          branch: main\n" +
 			"          secret: tu38ir**_demo_**3if23ff\n" +
 			"          project_dir: /opt/test-deploy/\n" +
 			"          bash_scripts:\n" +
@@ -102,7 +102,7 @@ func TestConfigSave(t *testing.T) {
 					{
 						APIRoute:   "go-github-webhook-cicd-test-deploy",
 						Repository: "git@github.com:nobuenhombre/go-github-webhook-cicd-test-deploy.git",
-						Branch:     "refs/heads/main",
+						Branch:     "main",
 						Secret:     "tu38ir**_demo_**3if23ff",
 						Dir:        "/opt/test-deploy/",
 						BashScripts: configgithub.BashScriptsConfig{
