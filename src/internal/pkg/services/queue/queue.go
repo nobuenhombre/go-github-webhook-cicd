@@ -34,24 +34,15 @@ func NewQueue(exec ExecFunc) Service {
 	}
 }
 
-func (q *Conn) logQueueItemsCount() {
-	q.itemsMutex.Lock()
-	defer q.itemsMutex.Unlock()
-}
-
 func (q *Conn) Activate() {
 	// wait current goroutine exit before start new
 	q.waitRunnerStop.Wait()
 
-	if q.active.CompareAndSwap(false, true) {
-		q.logQueueItemsCount()
-	}
+	q.active.CompareAndSwap(false, true)
 }
 
 func (q *Conn) DeActivate() {
-	if q.active.CompareAndSwap(true, false) {
-		q.logQueueItemsCount()
-	}
+	q.active.CompareAndSwap(true, false)
 
 	// wait current goroutine exit
 	q.waitRunnerStop.Wait()
