@@ -24,14 +24,16 @@ type Conn struct {
 	active         atomic.Bool
 	itemsMutex     *sync.Mutex
 	waitRunnerStop *sync.WaitGroup
+	sleepDuration  time.Duration
 }
 
-func NewQueue(exec ExecFunc) Service {
+func NewQueue(exec ExecFunc, sleepDuration time.Duration) Service {
 	return &Conn{
 		items:          list.New(),
 		exec:           exec,
 		itemsMutex:     new(sync.Mutex),
 		waitRunnerStop: new(sync.WaitGroup),
+		sleepDuration:  sleepDuration,
 	}
 }
 
@@ -98,7 +100,7 @@ func (q *Conn) Run() error {
 				}
 			}
 
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(q.sleepDuration)
 		}
 	}()
 

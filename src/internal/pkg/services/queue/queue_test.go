@@ -13,7 +13,7 @@ func TestQueueRun(t *testing.T) {
 		return nil
 	}
 
-	queue := NewQueue(exec)
+	queue := NewQueue(exec, 0)
 
 	errFirst := queue.Run()
 	errSecond := queue.Run()
@@ -32,7 +32,7 @@ func TestQueuePush(t *testing.T) {
 		return nil
 	}
 
-	queue := NewQueue(exec)
+	queue := NewQueue(exec, 0)
 
 	errInactive := queue.Push(1)
 	if !errors.Is(errInactive, &InActiveError{}) {
@@ -51,7 +51,7 @@ func TestQueue(t *testing.T) {
 		return nil
 	}
 
-	queue := NewQueue(exec)
+	queue := NewQueue(exec, 0)
 
 	err := queue.Run()
 	if err != nil {

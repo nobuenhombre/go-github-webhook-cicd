@@ -5,6 +5,7 @@ import (
 	gitexec "go-github-webhook-cicd/src/internal/pkg/services/gitExec"
 	"go-github-webhook-cicd/src/internal/pkg/services/github"
 	"go-github-webhook-cicd/src/internal/pkg/services/queue"
+	"time"
 )
 
 type AppDomain struct {
@@ -21,7 +22,7 @@ func NewAppDomain(config *configapp.Config) (IDomainApp, error) {
 
 	appDomain.githubService = github.NewGithub(&config.GitHub)
 	appDomain.gitExecService = gitexec.NewGitExec(&config.GitHub)
-	appDomain.queueService = queue.NewQueue(appDomain.gitExecService.GetExecutor())
+	appDomain.queueService = queue.NewQueue(appDomain.gitExecService.GetExecutor(), 500*time.Millisecond)
 
 	return appDomain, nil
 }
