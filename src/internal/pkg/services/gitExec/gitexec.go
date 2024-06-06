@@ -29,6 +29,11 @@ func (conn *Conn) exec(ident string, command string, args []string) error {
 	return nil
 }
 
+type GitCommand struct {
+	Cmd  string
+	Args []string
+}
+
 func (conn *Conn) GetExecutor() queue.ExecFunc {
 	return func(data interface{}) error {
 		project, ok := data.(*configgithub.GitHubProjectConfig)
@@ -36,34 +41,38 @@ func (conn *Conn) GetExecutor() queue.ExecFunc {
 			return ge.Pin(ge.New("data is not *configgithub.GitHubProjectConfig type"))
 		}
 
-		err := conn.exec(project.Repository, project.BashScripts.OnPull.Before, []string{})
-		if err != nil {
-			return ge.Pin(err)
+		commands := []GitCommand{
+			{
+				Cmd:  project.BashScripts.OnPull.Before,
+				Args: []string{},
+			},
+			{
+				Cmd:  conn.config.GitCmd,
+				Args: []string{"-C", project.Dir, "stash"},
+			},
+			{
+				Cmd:  conn.config.GitCmd,
+				Args: []string{"-C", project.Dir, "fetch"},
+			},
+			{
+				Cmd:  conn.config.GitCmd,
+				Args: []string{"-C", project.Dir, "checkout", project.Branch},
+			},
+			{
+				Cmd:  conn.config.GitCmd,
+				Args: []string{"-C", project.Dir, "pull"},
+			},
+			{
+				Cmd:  project.BashScripts.OnPull.After,
+				Args: []string{},
+			},
 		}
 
-		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "stash"})
-		if err != nil {
-			return ge.Pin(err)
-		}
-
-		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "fetch"})
-		if err != nil {
-			return ge.Pin(err)
-		}
-
-		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "checkout", project.Branch})
-		if err != nil {
-			return ge.Pin(err)
-		}
-
-		err = conn.exec(project.Repository, conn.config.GitCmd, []string{"-C", project.Dir, "pull"})
-		if err != nil {
-			return ge.Pin(err)
-		}
-
-		err = conn.exec(project.Repository, project.BashScripts.OnPull.After, []string{})
-		if err != nil {
-			return ge.Pin(err)
+		for _, command := range commands {
+			err := conn.exec(project.Repository, command.Cmd, command.Args)
+			if err != nil {
+				return ge.Pin(err)
+			}
 		}
 
 		return nil
