@@ -80,7 +80,10 @@ func main() {
 		}
 
 		// Start Queue
-		dom.GetQueueService().Run()
+		err = dom.GetQueueService().Run()
+		if err != nil {
+			log.Fatalf(" -[exit]- dom.GetQueueService().Run() error [%v]\n", err)
+		}
 
 		// Start API
 		srv.Run() // wait terminal signal

@@ -1,54 +1,116 @@
 package queue
 
 import (
-	"context"
+	"container/list"
 	"fmt"
+	"github.com/nobuenhombre/suikat/pkg/ge"
 	"log"
+	"sync"
+	"sync/atomic"
 )
+
+//---------------------------------------------------------------------------
+// 1. Push in queue - fast, do not wait Exec func result
+// 2. All queue items call Exec func by FIFO - not parallel
+// 3. Can stop in every time moment, but if Exec func start - it must be done
+//---------------------------------------------------------------------------
 
 type ExecFunc func(data interface{}) error
 
 type Conn struct {
-	items  chan interface{}
-	ctx    context.Context
-	cancel context.CancelFunc
-	exec   ExecFunc
+	items          *list.List
+	exec           ExecFunc
+	active         atomic.Bool
+	itemsMutex     *sync.Mutex
+	waitRunnerStop *sync.WaitGroup
 }
 
 func NewQueue(exec ExecFunc) Service {
-	ctx, cancel := context.WithCancel(context.Background())
 	return &Conn{
-		items:  make(chan interface{}, 5),
-		ctx:    ctx,
-		cancel: cancel,
-		exec:   exec,
+		items:          list.New(),
+		exec:           exec,
+		itemsMutex:     new(sync.Mutex),
+		waitRunnerStop: new(sync.WaitGroup),
 	}
 }
 
-func (q *Conn) Push(item interface{}) {
-	q.items <- item
+func (q *Conn) logQueueItemsCount() {
+	q.itemsMutex.Lock()
+	defer q.itemsMutex.Unlock()
 }
 
-func (q *Conn) Run() {
+func (q *Conn) Activate() {
+	// wait current goroutine exit before start new
+	q.waitRunnerStop.Wait()
+
+	if q.active.CompareAndSwap(false, true) {
+		q.logQueueItemsCount()
+	}
+}
+
+func (q *Conn) DeActivate() {
+	if q.active.CompareAndSwap(true, false) {
+		q.logQueueItemsCount()
+	}
+
+	// wait current goroutine exit
+	q.waitRunnerStop.Wait()
+}
+
+func (q *Conn) Push(item interface{}) error {
+	if !q.active.Load() {
+		return ge.Pin(&InActiveError{})
+	}
+
+	q.itemsMutex.Lock()
+	defer q.itemsMutex.Unlock()
+
+	q.items.PushBack(item)
+
+	return nil
+}
+
+func (q *Conn) getNextItem() *list.Element {
+	q.itemsMutex.Lock()
+	defer q.itemsMutex.Unlock()
+
+	var item *list.Element
+	if q.items.Len() > 0 {
+		item = q.items.Front()
+		q.items.Remove(item)
+	}
+
+	return item
+}
+
+func (q *Conn) Run() error {
+	if q.active.Load() {
+		return ge.Pin(&AlreadyActiveError{})
+	}
+
+	q.Activate()
+
 	go func() {
+		q.waitRunnerStop.Add(1)
 		for {
-			select {
-			case item := <-q.items:
-				err := q.exec(item)
-				if err != nil {
-					log.Println(fmt.Sprintf("Exec error: %v", err))
-				}
-			case <-q.ctx.Done():
-				close(q.items)
-				log.Println("Queue closed")
+			if !q.active.Load() {
+				q.waitRunnerStop.Done()
 				return
-			default:
-				// no one option worked
+			}
+
+			item := q.getNextItem()
+			if item != nil {
+				err := q.exec(item.Value)
+				if err != nil {
+					log.Println(fmt.Sprintf("Run exec error: %v", err))
+				}
 			}
 		}
 	}()
+
+	return nil
 }
 
 func (q *Conn) Stop() {
-	q.cancel()
+	q.DeActivate()
 }

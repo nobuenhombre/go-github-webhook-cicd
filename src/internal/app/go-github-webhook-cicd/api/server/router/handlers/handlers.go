@@ -29,7 +29,11 @@ func (h *HttpHandler) DefaultHandler(c *gin.Context) {
 func (h *HttpHandler) GithubWebHookHandler(c *gin.Context) {
 	project := c.MustGet(middlewares.Project).(*configgithub.GitHubProjectConfig)
 
-	h.Domain.GetQueueService().Push(project)
+	err := h.Domain.GetQueueService().Push(project)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": "OK",
