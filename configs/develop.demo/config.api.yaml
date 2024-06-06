@@ -12,8 +12,8 @@ github:
       project_dir: /project/work/dir/a
       bash_scripts:
         on_pull:
-          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/after-pull.sh
-          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/before-pull.sh
+          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/before-pull.sh
+          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/a/bash-scripts/pull/after-pull.sh
 
     - api_route: repo-name-b
       repository: git-user-name/repo-name-b
@@ -22,8 +22,8 @@ github:
       project_dir: /project/work/dir/b
       bash_scripts:
         on_pull:
-          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/after-pull.sh
-          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/before-pull.sh
+          before: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/before-pull.sh
+          after: /opt/go-github-webhook-cicd/configs/develop.demo/github/projects/b/bash-scripts/pull/after-pull.sh
 
 sentry:
   dsn: https://ABC@SUB.ingest.sentry.io/XXX
