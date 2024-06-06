@@ -7,6 +7,7 @@ import (
 	"log"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 //---------------------------------------------------------------------------
@@ -96,6 +97,8 @@ func (q *Conn) Run() error {
 					log.Println(fmt.Sprintf("Run exec error: %v", err))
 				}
 			}
+
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
